@@ -1,33 +1,47 @@
 import { MovieCard } from "../../components/movieCard";
-import { Movies } from "../../services/movie";
 import { StatusBar } from "expo-status-bar";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-//NOTE QUE TEMOS UMA TAG NOVA CHAMADA 'FlatList'. ESSA TAG RENDERIZA NOSSAS LISTAS.
-//IMPORTE A LISTA 'Movies' PARA QUE FUNCIONE CORRETAMENTE.
-//CRIE A LISTA 'Movies' ESTA DENTRO DA PASTA SERVICES.
+import { useEffect, useState } from "react";
+import { getPopularMovies } from "../../services/api";
+
 export default function Dashboard() {
-return (
-<SafeAreaView style={styles.container}>
-<Text style={styles.title}>Filmes</Text>
-<FlatList
-data={Movies}
-renderItem={({ item }) => <MovieCard item={item} />}
-keyExtractor={(item) => item.id}
-/>
-<StatusBar style="auto" hidden />
-</SafeAreaView>
-);
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    loadMovies();
+  }, []);
+
+  async function loadMovies() {
+    const data = await getPopularMovies();
+    console.log("FILMES DA API:", data); // 👈 debug
+    setMovies(data);
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Filmes 🎬</Text>
+
+      <FlatList
+        data={movies}
+        renderItem={({ item }) => <MovieCard item={item} />}
+        keyExtractor={(item, index) => index.toString()}
+      />
+
+      <StatusBar style="auto" hidden />
+    </SafeAreaView>
+  );
 }
+
 const styles = StyleSheet.create({
-container: {
-flex: 1,
-backgroundColor: "#19244B",
-padding: 8,
-},
-title: {
-color: "white",
-fontSize: 20,
-marginBottom: 30,
-},
+  container: {
+    flex: 1,
+    backgroundColor: "#19244B",
+    padding: 8,
+  },
+  title: {
+    color: "white",
+    fontSize: 20,
+    marginBottom: 30,
+  },
 });
